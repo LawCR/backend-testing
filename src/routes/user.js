@@ -10,7 +10,7 @@ const router = Router();
  * @swagger
  * /api/user:
  *  get:
- *   summary: Return all products
+ *   summary: Return all users
  *   tags: [User]
  *   parameters:
  *    - in: query

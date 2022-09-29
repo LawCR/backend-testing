@@ -11,7 +11,7 @@ const swaggerSpec = {
     definition: {
         openapi: '3.0.0',
         info: {
-            title: 'Productos Testing',
+            title: 'Farmacia UntelsFarma Testing',
             version: '1.0.0',
         },
         servers: [
@@ -32,19 +32,14 @@ const port = process.env.PORT || 9000;
 
 // middlewares
 app.use(cors())
-app.use( express.json());
+app.use( express.json() );
 app.use('/documentation', swaggerUI.serve, swaggerUI.setup(swaggerJsDoc(swaggerSpec)))
 
 // Rutas
 app.use('/api/products', require('./routes/product'));
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/user', require('./routes/user'));
-
-
-// routes
-app.get('/', (req, res) => {
-    res.send('Bienvenido a mi API')
-})
+app.use('/api/category', require('./routes/category'));
 
 // mongodb conection
 mongoose.connect( process.env.MONGODB_URI )
