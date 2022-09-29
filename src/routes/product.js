@@ -74,9 +74,12 @@ router.post('/', (req, res) => {
  *  get:
  *   summary: Return all products
  *   tags: [Product]
+ *   parameters:
+ *    - in: query
+ *      name: search
  *   responses:
  *     200:
- *      description: The product was successfully created
+ *      description: Products founded
  *      content:
  *        application/json:
  *          schema:
@@ -85,8 +88,15 @@ router.post('/', (req, res) => {
  *             $ref: '#/components/schemas/Product'
  */
 router.get('/', (req, res) => {
+    const { search } = req.query
+    const regex = new RegExp(search,'i')
     productSchema
-        .find()
+        // .find()
+        .find({
+            $or: [{nombre: regex}, {categoria: regex}],
+        })
+        // .select('title images price inStock slug -_id')
+        // .lean()
         .then(( data ) => res.json( data ))
         .catch(( error ) => res.json({ message: error }));
 })
