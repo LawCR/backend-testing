@@ -1,10 +1,66 @@
-/*
-route: /products
-*/
+/**
+ * @swagger
+ * components:
+ *  schemas:
+ *    Product:
+ *      type: object
+ *      properties:
+ *        nombre:
+ *          type: string
+ *          description: Nombre del producto
+ *        precio:
+ *          type: number
+ *          description: Precio del producto
+ *        descripcion:
+ *          type: string
+ *          description: Descripcion del producto
+ *        laboratorio:
+ *          type: string
+ *          description: Laboratorio del producto
+ *        stock:
+ *          type: number
+ *          description: Stock del producto
+ *        vencimiento:
+ *          type: string
+ *          description: Vencimiento del producto
+ *        imagen:
+ *          type: string
+ *          description: Imagen del producto
+ *        categoria:
+ *          type: string
+ *          description: Categoria del producto
+ *      required:
+ *        - nombre
+ *        - precio
+ *        - descripcion
+ *        - laboratorio
+ *        - stock
+ *        - vencimiento
+ *        - imagen
+ *        - categoria
+ */
+
 const express = require('express');
 const productSchema = require('../models/product');
 const router = express.Router();
 
+/**
+ * @swagger
+ * /api/products:
+ *  post:
+ *   summary: Create a new product
+ *   tags: [Product]
+ *   requestBody:
+ *     required: true
+ *     content:
+ *       application/json:
+ *         schema:
+ *           type: object
+ *           $ref: '#/components/schemas/Product'
+ *   responses:
+ *     200:
+ *      description: The product was successfully created
+ */
 router.post('/', (req, res) => {
     const product = productSchema( req.body );
     product.save()
@@ -12,6 +68,22 @@ router.post('/', (req, res) => {
         .catch(( error ) => res.json({ message: error }));
 })
 
+/**
+ * @swagger
+ * /api/products:
+ *  get:
+ *   summary: Return all products
+ *   tags: [Product]
+ *   responses:
+ *     200:
+ *      description: The product was successfully created
+ *      content:
+ *        application/json:
+ *          schema:
+ *            type: array
+ *            items:
+ *             $ref: '#/components/schemas/Product'
+ */
 router.get('/', (req, res) => {
     productSchema
         .find()
@@ -19,6 +91,30 @@ router.get('/', (req, res) => {
         .catch(( error ) => res.json({ message: error }));
 })
 
+/**
+ * @swagger
+ * /api/products/{id}:
+ *  get:
+ *   summary: Return a product by id
+ *   tags: [Product]
+ *   parameters:
+ *    - in: path
+ *      name: id
+ *      schema:
+ *        type: string
+ *      required: true
+ *      description: The product id
+ *   responses:
+ *     200:
+ *      description: The product was successfully founded
+ *      content:
+ *        application/json:
+ *          schema:
+ *            type: object
+ *            $ref: '#/components/schemas/Product'
+ *     404:
+ *      description: The product was not found
+ */
 router.get('/:id', (req, res) => {
     const { id } = req.params;
     productSchema
@@ -27,6 +123,32 @@ router.get('/:id', (req, res) => {
         .catch(( error ) => res.json({ message: error }));
 })
 
+/**
+ * @swagger
+ * /api/products/{id}:
+ *  put:
+ *   summary: Update a product by id
+ *   tags: [Product]
+ *   parameters:
+ *    - in: path
+ *      name: id
+ *      schema:
+ *        type: string
+ *      required: true
+ *      description: The product id
+ *   requestBody:
+ *     required: true
+ *     content:
+ *       application/json:
+ *         schema:
+ *           type: object
+ *           $ref: '#/components/schemas/Product'
+ *   responses:
+ *     200:
+ *      description: The product was successfully updated
+ *     404:
+ *      description: The product was not found
+ */
 router.put('/:id', (req, res) => {
     const { id } = req.params;
     const { nombre,
@@ -43,6 +165,25 @@ router.put('/:id', (req, res) => {
         .catch(( error ) => res.json({ message: error }));
 })
 
+/**
+ * @swagger
+ * /api/products/{id}:
+ *  delete:
+ *   summary: delete a product
+ *   tags: [Product]
+ *   parameters:
+ *    - in: path
+ *      name: id
+ *      schema:
+ *        type: string
+ *      required: true
+ *      description: The product id
+ *   responses:
+ *     200:
+ *      description: The product was successfully deleted
+ *     404:
+ *      description: The product was not found
+ */
 router.delete('/:id', (req, res) => {
     const { id } = req.params;
     productSchema

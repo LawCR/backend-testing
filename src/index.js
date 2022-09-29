@@ -1,20 +1,44 @@
 const express = require('express')
 const cors = require('cors')
 const mongoose = require('mongoose');
-const productRoutes = require('./routes/product');
-const authRoutes = require('./routes/auth');
-const userRoutes = require('./routes/user');
 require('dotenv').config();
+const path = require('path')
 
+// swagger
+const swaggerUI = require('swagger-ui-express');
+const swaggerJsDoc = require('swagger-jsdoc');
+const swaggerSpec = {
+    definition: {
+        openapi: '3.0.0',
+        info: {
+            title: 'Productos Testing',
+            version: '1.0.0',
+        },
+        servers: [
+            {
+                url: 'http://localhost:9000',
+            },
+            {
+                url: 'https://backend-testing-production.up.railway.app',
+            },
+        ]
+    },
+    apis: [`${path.join(__dirname, './routes/*.js')}`],
+}
 
+// settings
 const app = express();
 const port = process.env.PORT || 9000;
 
+// middlewares
 app.use(cors())
 app.use( express.json());
-app.use('/api/products', productRoutes);
-app.use('/api/auth', authRoutes);
-app.use('/api/user', userRoutes);
+app.use('/documentation', swaggerUI.serve, swaggerUI.setup(swaggerJsDoc(swaggerSpec)))
+
+// Rutas
+app.use('/api/products', require('./routes/product'));
+app.use('/api/auth', require('./routes/auth'));
+app.use('/api/user', require('./routes/user'));
 
 
 // routes
