@@ -32,7 +32,7 @@ const port = process.env.PORT || 9000;
 
 // middlewares
 app.use(cors())
-app.use( express.json() );
+app.use( express.json());
 app.use('/documentation', swaggerUI.serve, swaggerUI.setup(swaggerJsDoc(swaggerSpec)))
 
 // Rutas
@@ -40,6 +40,11 @@ app.use('/api/products', require('./routes/product'));
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/user', require('./routes/user'));
 app.use('/api/category', require('./routes/category'));
+
+// routes
+app.get('/', (req, res) => {
+    res.send('Bienvenido a mi API')
+})
 
 // mongodb conection
 mongoose.connect( process.env.MONGODB_URI )

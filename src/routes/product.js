@@ -41,6 +41,9 @@
  */
 
 const express = require('express');
+const { check } = require('express-validator');
+const { validateFields } = require('../middlewares/validateFields');
+const Category = require('../models/category');
 const productSchema = require('../models/product');
 const router = express.Router();
 
@@ -61,11 +64,41 @@ const router = express.Router();
  *     200:
  *      description: The product was successfully created
  */
-router.post('/', (req, res) => {
+router.post('/', 
+    [ 
+        check('categoria', 'La categoria es requerida').not().isEmpty(),
+        check('categoria', 'No es un id de categoria valido').isMongoId(),
+        check('nombre', 'El nombre es requerido').not().isEmpty(),
+        check('precio', 'El precio es requerido').not().isEmpty(),
+        check('descripcion', 'El descripcion es requerido').not().isEmpty(),
+        check('laboratorio', 'El laboratorio es requerido').not().isEmpty(),
+        check('stock', 'El stock es requerido').not().isEmpty(),
+        check('vencimiento', 'La fecha de vencimiento es requerido').not().isEmpty(),
+        check('imagen', 'El imagen es requerido').not().isEmpty(),
+        validateFields
+    ]
+    , async(req, res) => {
+    const {categoria, nombre} = req.body
+    const idcategoria = await Category.findById(categoria);
+    
+    if (!idcategoria){
+        return res.status(400).json({
+            msg: `La categoria del producto escogido no existe`
+        })
+    }
+
+    const productoDB = await productSchema.findOne({nombre});
+
+    if (productoDB) {
+        return res.status(400).json({
+            msg: `El producto ${productoDB.nombre}, ya existe `
+        })
+    }
+
     const product = productSchema( req.body );
-    product.save()
-        .then(( data ) => res.json( data ))
-        .catch(( error ) => res.json({ message: error }));
+    await product.save();
+
+    res.status(201).json(product);
 })
 
 /**
@@ -87,18 +120,27 @@ router.post('/', (req, res) => {
  *            items:
  *             $ref: '#/components/schemas/Product'
  */
-router.get('/', (req, res) => {
+router.get('/', async(req, res) => {
     const { search } = req.query
     const regex = new RegExp(search,'i')
-    productSchema
-        // .find()
-        .find({
-            $or: [{nombre: regex}, {categoria: regex}],
+    // productSchema
+    //     .find({
+    //         // $or: [{nombre: regex}, {categoria: regex}],
+    //         $or: [{nombre: regex}],
+    //     })
+    //     // .select('nombre precio -_id')
+    //     // .lean()
+    //     .then(( data ) => res.json( data ))
+    //     .catch(( error ) => res.json({ message: error }));
+
+        const products = await productSchema.find({
+            $or: [{nombre: regex}],
         })
-        // .select('title images price inStock slug -_id')
-        // .lean()
-        .then(( data ) => res.json( data ))
-        .catch(( error ) => res.json({ message: error }));
+    .populate("categoria",'name')  
+    .select('-__v')
+    res.json({
+        products
+    });
 })
 
 /**
@@ -125,12 +167,20 @@ router.get('/', (req, res) => {
  *     404:
  *      description: The product was not found
  */
-router.get('/:id', (req, res) => {
+router.get('/:id', async(req, res) => {
     const { id } = req.params;
-    productSchema
-        .findById( id )
-        .then(( data ) => res.json( data ))
-        .catch(( error ) => res.json({ message: error }));
+    const product = await productSchema.findById( id )
+    .populate("categoria",'name')  
+    if (!product){
+        return res.status(400).json({
+            msg: `La producto no existe`
+        })
+    }
+    res.json({
+        product
+    });
+        // .then(( data ) => res.json( data ))
+        // .catch(( error ) => res.json({ msg: 'No existe el producto' }));
 })
 
 /**
@@ -159,7 +209,7 @@ router.get('/:id', (req, res) => {
  *     404:
  *      description: The product was not found
  */
-router.put('/:id', (req, res) => {
+router.put('/:id', async(req, res) => {
     const { id } = req.params;
     const { nombre,
             precio,
@@ -169,10 +219,27 @@ router.put('/:id', (req, res) => {
             vencimiento,
             imagen,
             categoria } = req.body;
-    productSchema
-        .updateOne({ _id : id }, { $set: { nombre, precio, descripcion, laboratorio, stock, vencimiento, imagen, categoria }})
-        .then(( data ) => res.json( data ))
-        .catch(( error ) => res.json({ message: error }));
+
+    const idcategoria = categoria ? await Category.findById(categoria) : true
+    
+    if (!idcategoria){
+        return res.status(400).json({
+            msg: `La categoria del producto escogido no existe`
+        })
+    }
+
+    const productoDB = await productSchema.findOne({nombre});
+
+    if (productoDB && productoDB.nombre !== nombre) {
+        return res.status(400).json({
+            msg: `El producto ${productoDB.nombre}, ya existe `
+        })
+    }
+
+    const productoUpdated = await productSchema.findByIdAndUpdate(id, req.body, {new:true})
+    res.json({
+        producto: productoUpdated
+    });
 })
 
 /**
@@ -194,8 +261,17 @@ router.put('/:id', (req, res) => {
  *     404:
  *      description: The product was not found
  */
-router.delete('/:id', (req, res) => {
+router.delete('/:id', async(req, res) => {
     const { id } = req.params;
+
+    const product = await productSchema.findById(id);
+
+    if (!product ) {
+        return res.status(400).json({
+            msg: `El producto ${id} no existe`
+        })
+    }
+    
     productSchema
         .remove({ _id : id })
         .then(( data ) => res.json( data ))

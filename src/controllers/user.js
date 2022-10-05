@@ -28,24 +28,31 @@ const usuariosGet = async(req = request, res = response) => {
     });
 }
 
-// const usuariosPut = async(req = request, res) => {
+const updateUser = async(req = request, res) => {
 
-//     const {id} = req.params;
-//     console.log(id);
-//     const { _id, password, google, correo, ...resto} = req.body;
+    const {id} = req.params;
+    const { _id, password, email, ...resto} = req.body;
 
-//     if (password) {
-//         const salt = bcryptjs.genSaltSync(10);
-//         resto.password = bcryptjs.hashSync(password, salt);
-//     }
+    const user = await User.findById( id )
+    
+    if (!user){
+        return res.status(400).json({
+            msg: `La usuario no existe`
+        })
+    }
 
-//     const usuario = await Usuario.findByIdAndUpdate(id,resto, {new:true});
+    if (password) {
+        const salt = bcryptjs.genSaltSync(10);
+        resto.password = bcryptjs.hashSync(password, salt);
+    }
 
-//     res.json({
-//         msg: 'put API - controlador',
-//         usuario
-//     });
-// }
+    const usuario = await User.findByIdAndUpdate(id,resto, {new:true});
+
+    res.json({
+        msg: 'Usuario actualizado correactamente',
+        usuario
+    });
+}
 
 
 // const usuariosPost = async(req, res) => {
@@ -68,20 +75,30 @@ const usuariosGet = async(req = request, res = response) => {
 // }
 
 
-// const usuariosDelete = async(req = request, res=response) => {
+const getUserById = async(req = request, res=response) => {
+    const {id} = req.params;
+    const user = await User.findById( id )
+        
+    if (!user){
+        return res.status(400).json({
+            msg: `La usuario no existe`
+        })
+    }
+    res.json( user );
+}
 
-//     const {id} = req.params;
-//    // const uid = req.uid;
-//     //fisicamente lo borramos
-//     //const usuario = await Usuario.findByIdAndDelete(id);
-//     //Se mantiene el usuario en la bd pero borrado al cambiarle el estado a falso-recomendando
-
-//     const usuario = await Usuario.findByIdAndUpdate(id, {estado:false},{new:true})
-//    // const usuarioAutencado = req.usuario;
-//     res.json( usuario);
-//    // res.json({ usuario,usuarioAutencado} );
-
-// }
+const deleteUser = async(req = request, res=response) => {
+    const {id} = req.params;
+    const user = await User.findById( id )
+        
+    if (!user){
+        return res.status(400).json({
+            msg: `La usuario no existe`
+        })
+    }
+    const usuario = await User.findByIdAndDelete(id);
+    res.json( usuario );
+}
 
 
 // const usuariosPatch = (req, res) => {
@@ -95,5 +112,8 @@ const usuariosGet = async(req = request, res = response) => {
 
 module.exports = {
     usuariosGet,
-    // usuariosPut, usuariosPost, usuariosDelete, usuariosPatch
+    updateUser,
+    getUserById,
+    deleteUser,
+    // usuariosPost, usuariosPatch
 }

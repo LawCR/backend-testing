@@ -22,7 +22,12 @@ const UserSchema = Schema({
     online: {
         type: Boolean,
         default: false
-    }
+    },
+    role: {
+        type: String,
+        enum: ['admin', 'client'],
+        default: 'client'
+    },
 })
 
 UserSchema.method('toJSON', function(){
