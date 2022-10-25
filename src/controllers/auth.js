@@ -19,7 +19,7 @@ const createUser = async(req, res = response) => {
         // Encriptar contraseña
         const salt = bcryptjs.genSaltSync()
         user.password = bcryptjs.hashSync(password, salt)
-
+        user.role = 'client'
         // Guardar usuario en DB
         await user.save()
 

@@ -6,7 +6,7 @@ const usuariosGet = async(req = request, res = response) => {
 
     //const query = req.query;
   //  const {q, nombre='no name', page = 1,limit} = req.query;
-    const { limite = 5, desde = 0 } = req.query;
+    const { limite = 20, desde = 0 } = req.query;
     // const query = {estado:true};
 /*
     const usuarios = await Usuario.find({ query })
@@ -33,8 +33,14 @@ const updateUser = async(req = request, res) => {
     const {id} = req.params;
     const { _id, password, email, ...resto} = req.body;
 
+    const validRoles = ['admin', 'client'];
+    if (!validRoles.includes(resto.role) ){
+        return res.status(400).json({
+            msg: `El rol ${resto.role} no es válido`
+        })
+    }
+
     const user = await User.findById( id )
-    
     if (!user){
         return res.status(400).json({
             msg: `La usuario no existe`
@@ -53,27 +59,6 @@ const updateUser = async(req = request, res) => {
         usuario
     });
 }
-
-
-// const usuariosPost = async(req, res) => {
-
-
-//     const {nombre, correo, password, rol} = req.body;
-//     const usuario = new Usuario({nombre, correo, password, rol});
-
-//     // Encriptar la contraseña
-//     const salt = bcryptjs.genSaltSync(10);
-//     usuario.password = bcryptjs.hashSync(password, salt);
-
-//     //Guardar em BD
-//     await usuario.save();
-
-//     //const {nombre,edad} = req.body;
-//     res.json({
-//         usuario
-//     });
-// }
-
 
 const getUserById = async(req = request, res=response) => {
     const {id} = req.params;
@@ -100,20 +85,9 @@ const deleteUser = async(req = request, res=response) => {
     res.json( usuario );
 }
 
-
-// const usuariosPatch = (req, res) => {
-
-
-//     res.json({
-//         msg: 'patch API - controlador'
-//     });
-// }
-
-
 module.exports = {
     usuariosGet,
     updateUser,
     getUserById,
     deleteUser,
-    // usuariosPost, usuariosPatch
 }

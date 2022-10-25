@@ -11,7 +11,7 @@ const swaggerSpec = {
     definition: {
         openapi: '3.0.0',
         info: {
-            title: 'Farmacia UntelsFarma Testing',
+            title: 'Farmacia Medical Testing',
             version: '1.0.0',
         },
         servers: [
@@ -43,7 +43,7 @@ app.use('/api/category', require('./routes/category'));
 
 // routes
 app.get('/', (req, res) => {
-    res.send('Bienvenido a mi API')
+    res.send('Bienvenido al backend de Medical')
 })
 
 // mongodb conection
