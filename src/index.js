@@ -21,6 +21,9 @@ const swaggerSpec = {
             {
                 url: 'https://backend-testing-production.up.railway.app',
             },
+            {
+                url: 'https://medical-farmacy.herokuapp.com/',
+            },
         ]
     },
     apis: [`${path.join(__dirname, './routes/*.js')}`],
@@ -30,8 +33,22 @@ const swaggerSpec = {
 const app = express();
 const port = process.env.PORT || 9000;
 
+const whitelist = [
+    'https://medical-farmacy.netlify.app/',
+    'http://localhost:3000',
+];
+
 // middlewares
-app.use(cors())
+app.use(cors({
+    // origin: whitelist,
+    origin: function (origin, callback) {
+        if (whitelist.indexOf(origin) !== -1) {
+            callback(null, true);
+        } else {
+            callback(new Error('No tienes permiso para consumir este servicio'));
+        }
+    }
+}))
 app.use( express.json());
 app.use('/documentation', swaggerUI.serve, swaggerUI.setup(swaggerJsDoc(swaggerSpec)))
 
