@@ -1,6 +1,8 @@
 const { Router } = require('express');
 const { check } = require('express-validator');
-const { usuariosGet, updateUser, getUserById, deleteUser } = require('../controllers/user');
+const { usuariosGet, updateUser, getUserById, deleteUser, createUser } = require('../controllers/user');
+const { validateFields } = require('../middlewares/validateFields');
+const { validateJWT } = require('../middlewares/validateJWT');
 
 
 const router = Router();
@@ -27,7 +29,33 @@ const router = Router();
  *            items:
  *             $ref: '#/components/schemas/User'
  */
-router.get('/',  usuariosGet);
+router.get('/', validateJWT,  usuariosGet);
+
+/**
+ * @swagger
+ * /api/user:
+ *  post:
+ *   summary: Register a new employee o administator
+ *   tags: [User]
+ *   requestBody:
+ *     required: true
+ *     content:
+ *       application/json:
+ *         schema:
+ *           type: object
+ *           $ref: '#/components/schemas/User'
+ *   responses:
+ *     200:
+ *      description: The user was successfully created
+ */
+ router.post('/', [
+    validateJWT,
+    check('name', 'El nombre es obligatorio').not().isEmpty(),
+    check('lastname', 'El apellido es obligatorio').not().isEmpty(),
+    check('role', 'El rol es obligatorio').not().isEmpty(),
+    check('email', 'El email es obligatorio').isEmail(),
+    validateFields
+], createUser)
 
 /**
  * @swagger
@@ -55,7 +83,7 @@ router.get('/',  usuariosGet);
  *     404:
  *      description: The user was not found
  */
-router.put('/:id',  updateUser);
+router.put('/:id', validateJWT, updateUser);
 
 /**
  * @swagger
@@ -102,7 +130,7 @@ router.get('/:id',  getUserById);
  *     404:
  *      description: The user was not found
  */
-router.delete('/:id',  deleteUser);
+router.delete('/:id', validateJWT, deleteUser);
 
 
 

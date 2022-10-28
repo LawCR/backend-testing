@@ -28,12 +28,57 @@ const usuariosGet = async(req = request, res = response) => {
     });
 }
 
+const createUser = async(req, res = response) => {
+    try {
+        const { email, role } = req.body
+        const uid = req.uid;
+        const currentUser = await User.findById(uid)
+        if (currentUser.role !== 'admin') {
+            return res.status(401).json({
+                msg: 'No tiene privilegios para crear un usuario'
+            })
+        }
+
+        const existEmail = await User.findOne({ email })
+        if (existEmail) {
+            return res.status(400).json({
+                ok: false,
+                msg: 'El correo ya está registrado'
+            })
+        }
+
+        const validRoles = ['admin', 'client', 'employee'];
+        if (!validRoles.includes(role) ){
+            return res.status(400).json({
+                msg: `El rol ${role} no es válido`
+            })
+        }
+
+        const user = new User(req.body)
+        
+        const salt = bcryptjs.genSaltSync()
+        user.password = bcryptjs.hashSync('123456', salt)
+        await user.save()
+
+        res.json({
+            ok: true,
+            user,
+        })
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({
+            ok: false,
+            msg: 'Error en el servidor, hable con el administrador'
+        })
+    }
+}
+
 const updateUser = async(req = request, res) => {
 
     const {id} = req.params;
     const { _id, password, email, ...resto} = req.body;
 
-    const validRoles = ['admin', 'client'];
+    const validRoles = ['admin', 'client', 'employee'];
     if (!validRoles.includes(resto.role) ){
         return res.status(400).json({
             msg: `El rol ${resto.role} no es válido`
@@ -87,6 +132,7 @@ const deleteUser = async(req = request, res=response) => {
 
 module.exports = {
     usuariosGet,
+    createUser,
     updateUser,
     getUserById,
     deleteUser,
