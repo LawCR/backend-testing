@@ -40,16 +40,17 @@ const whitelist = [
 ];
 
 // middlewares
-app.use(cors({
-    origin: whitelist,
-    // origin: function (origin, callback) {
-    //     if (whitelist.indexOf(origin) !== -1) {
-    //         callback(null, true);
-    //     } else {
-    //         callback(new Error('No tienes permiso para consumir este servicio'));
-    //     }
-    // }
-}))
+// app.use(cors({
+//     // origin: whitelist,
+//     // origin: function (origin, callback) {
+//     //     if (whitelist.indexOf(origin) !== -1) {
+//     //         callback(null, true);
+//     //     } else {
+//     //         callback(new Error('No tienes permiso para consumir este servicio'));
+//     //     }
+//     // }
+// }))
+app.use(cors())
 app.use( express.json());
 app.use('/documentation', swaggerUI.serve, swaggerUI.setup(swaggerJsDoc(swaggerSpec)))
 
