@@ -3,6 +3,7 @@ const { check } = require('express-validator');
 const { usuariosGet, updateUser, getUserById, deleteUser, createUser } = require('../controllers/user');
 const { validateFields } = require('../middlewares/validateFields');
 const { validateJWT } = require('../middlewares/validateJWT');
+const { validateUserRol } = require('../middlewares/validateRoles');
 
 
 const router = Router();
@@ -29,7 +30,10 @@ const router = Router();
  *            items:
  *             $ref: '#/components/schemas/User'
  */
-router.get('/', validateJWT,  usuariosGet);
+router.get('/', [
+    validateJWT, 
+    validateUserRol('admin', 'employee')
+],  usuariosGet);
 
 /**
  * @swagger
@@ -50,6 +54,7 @@ router.get('/', validateJWT,  usuariosGet);
  */
  router.post('/', [
     validateJWT,
+    validateUserRol('admin', 'employee'),
     check('name', 'El nombre es obligatorio').not().isEmpty(),
     check('lastname', 'El apellido es obligatorio').not().isEmpty(),
     check('role', 'El rol es obligatorio').not().isEmpty(),

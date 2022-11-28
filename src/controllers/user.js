@@ -31,19 +31,19 @@ const usuariosGet = async(req = request, res = response) => {
 const createUser = async(req, res = response) => {
     try {
         const { email, role } = req.body
-        const uid = req.uid;
-        const currentUser = await User.findById(uid)
-        if (currentUser.role !== 'admin') {
-            return res.status(401).json({
-                msg: 'No tiene privilegios para crear un usuario'
-            })
-        }
+        // const uid = req.uid;
+        // const currentUser = await User.findById(uid)
+        // if (currentUser.role !== 'admin') {
+        //     return res.status(401).json({
+        //         msg: 'No tiene privilegios para crear un usuario'
+        //     })
+        // }
 
         const existEmail = await User.findOne({ email })
         if (existEmail) {
             return res.status(400).json({
                 ok: false,
-                msg: 'El correo ya está registrado'
+                msg: 'El correo ingresado ya existe'
             })
         }
 
@@ -60,7 +60,7 @@ const createUser = async(req, res = response) => {
         user.password = bcryptjs.hashSync('123456', salt)
         await user.save()
 
-        res.json({
+        res.status(201).json({
             ok: true,
             user,
         })
