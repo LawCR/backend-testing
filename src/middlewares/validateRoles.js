@@ -3,7 +3,7 @@ const user = require("../models/user");
 const validateUserRol = ( ...roles) => {
     return async(req, res=response, next) => {
         if (!req.uid) {
-            return res.status(500).json({msg: 'Token no validado'});
+            return res.status(401).json({msg: 'Token no validado'});
         }
 
         const currentUser = await user.findById(req.uid)

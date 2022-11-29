@@ -88,7 +88,10 @@ router.get('/', [
  *     404:
  *      description: The user was not found
  */
-router.put('/:id', validateJWT, updateUser);
+router.put('/:id', [
+    validateJWT, 
+    validateUserRol('admin', 'employee')
+], updateUser);
 
 /**
  * @swagger
@@ -114,7 +117,10 @@ router.put('/:id', validateJWT, updateUser);
  *     404:
  *      description: The user was not found
  */
-router.get('/:id',  getUserById);
+router.get('/:id', [
+    validateJWT, 
+    validateUserRol('admin', 'employee')
+],  getUserById);
 
 /**
  * @swagger
@@ -135,7 +141,10 @@ router.get('/:id',  getUserById);
  *     404:
  *      description: The user was not found
  */
-router.delete('/:id', validateJWT, deleteUser);
+router.delete('/:id', [
+    validateJWT, 
+    validateUserRol('admin', 'employee')
+], deleteUser);
 
 
 
