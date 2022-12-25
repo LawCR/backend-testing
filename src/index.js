@@ -24,6 +24,9 @@ const swaggerSpec = {
             {
                 url: 'https://medical-farmacy.herokuapp.com/',
             },
+            {
+                url: 'https://backend-testing-1p5v.onrender.com/',
+            },
         ]
     },
     apis: [`${path.join(__dirname, './routes/*.js')}`],
